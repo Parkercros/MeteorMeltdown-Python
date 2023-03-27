@@ -6,6 +6,8 @@ import sys
 import colorsys
 import os
 
+
+
 images_dir = "images"
 if not os.path.exists(images_dir):
     os.makedirs(images_dir)
@@ -107,6 +109,8 @@ background_image = pygame.image.load("background3.jpg")
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 
 def painting_program():
+    font = pygame.font.Font(None, 36)
+    pygame.font.init()
     drawing = False
     color = (160, 160, 160)
     brush_size = INITIAL_BRUSH_SIZE
@@ -139,6 +143,10 @@ def painting_program():
                             if 0 <= i < len(color_palette):
                                 color = color_palette[i]
 
+                        # Check if the click was inside the back button
+                        if 50 <= x <= 250 and 20 <= y <= 70:
+                            return
+
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     drawing = False
@@ -156,6 +164,13 @@ def painting_program():
         # Blit the background image onto the screen
         screen.blit(background_image, (0, 0))
 
+        # Draw the back button
+        back_button_text = font.render("Back To Menu", True, (255, 255, 255))
+        back_button_rect = back_button_text.get_rect(center=(150, 45))
+
+        pygame.draw.rect(screen, (75, 119, 190), (50, 20, 200, 50), 0)
+        screen.blit(back_button_text, back_button_rect)
+
         # Draw the color palette on the screen
         draw_color_palette()
 
@@ -165,7 +180,6 @@ def painting_program():
         draw_grid()
 
         pygame.display.flip()
-
 
 if __name__ == "__main__":
     painting_program()

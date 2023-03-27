@@ -2,6 +2,8 @@ import pygame
 import sys
 from asteroid_game import asteroid_game
 from painting_program import painting_program
+from moviepy.editor import VideoFileClip
+
 
 pygame.init()
 pygame.mixer.init()
@@ -13,11 +15,13 @@ WIDTH, HEIGHT = 1600, 1000
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('App Menu')
 
-# Load background image
 background_image = pygame.image.load("background2.png")
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 
-# Fonts
+video_clip = VideoFileClip("main.mp4")
+video_clip = video_clip.resize((WIDTH, HEIGHT))
+
+
 pygame.font.init()
 font = pygame.font.Font(None, 36)
 
@@ -39,29 +43,39 @@ def draw_button(text, x, y, width, height, active_color, inactive_color):
 
 
 def main_menu():
+    clock = pygame.time.Clock()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+                
+        # Calculate the current video frame based on elapsed time
+        elapsed_time = pygame.time.get_ticks() / 1000
+        video_frame = video_clip.get_frame(elapsed_time)
 
-        # Fill the screen with the background image
-        screen.blit(background_image, (0, 0))
+        # Convert the video frame to a pygame surface
+        background_surface = pygame.surfarray.make_surface(video_frame.swapaxes(0, 1))
+
+        # Draw the video frame as the background
+        screen.blit(background_surface, (0, 0))
 
         # Draw buttons
         button_width = 250
         button_height = 50
         button_spacing = 50
+        pygame.display.update()
+        clock.tick(30) 
 
         button_x_start = (WIDTH - button_width * 2 - button_spacing) / 2
 
-        if draw_button("Start Game", button_x_start, 340, button_width, button_height, (75, 119, 190), (98, 164, 229)):
+        if draw_button("Start Game", button_x_start, 500, button_width, button_height, (75, 119, 190), (98, 164, 229)):
             asteroid_game()
 
-        if draw_button("Create Character", button_x_start + button_width + button_spacing, 340, button_width, button_height, (75, 119, 190), (98, 164, 229)):
+        if draw_button("Create Character", button_x_start + button_width + button_spacing, 500, button_width, button_height, (75, 119, 190), (98, 164, 229)):
             painting_program()
 
-        if draw_button("Exit", button_x_start + (button_width + button_spacing) / 2, 900, button_width, button_height, (75, 119, 190), (98, 164, 229)):
+        if draw_button("Exit", button_x_start + (button_width + button_spacing) / 2, 700, button_width, button_height, (75, 119, 190), (98, 164, 229)):
             pygame.quit()
             sys.exit()
 
