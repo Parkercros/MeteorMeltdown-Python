@@ -5,6 +5,7 @@ import pygame
 import sys
 import colorsys
 import os
+from moviepy.editor import VideoFileClip
 
 
 
@@ -12,6 +13,7 @@ images_dir = "images"
 if not os.path.exists(images_dir):
     os.makedirs(images_dir)
     
+
 
 
 WIDTH, HEIGHT = 1600, 1000
@@ -26,6 +28,7 @@ color = (0, 0, 255)
 INITIAL_BRUSH_SIZE = 1
 
 pygame.init()
+font = pygame.font.Font(None, 36)  # Add this line
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((128, 128, 128))
 
@@ -105,15 +108,26 @@ def save_image():
     filepath = os.path.join(images_dir, filename)
     pygame.image.save(surface, filepath)
     
-background_image = pygame.image.load("background3.jpg")
-background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+video_clip_painting = VideoFileClip("assets/rocks.mp4")
+video_clip_painting = video_clip_painting.resize((WIDTH, HEIGHT))
+
+def draw_back_button():
+    back_button_text = font.render("Back To Menu", True, (255, 255, 255))
+    back_button_rect = back_button_text.get_rect(center=(150, 45))
+
+    pygame.draw.rect(screen, (75, 119, 190), (50, 20, 200, 50), 0)
+    screen.blit(back_button_text, back_button_rect)
+
 
 def painting_program():
-    font = pygame.font.Font(None, 36)
-    pygame.font.init()
     drawing = False
     color = (160, 160, 160)
     brush_size = INITIAL_BRUSH_SIZE
+    clock = pygame.time.Clock()
+
+    video_clip_painting = VideoFileClip("assets/rocks.mp4")
+    video_clip_painting = video_clip_painting.resize((WIDTH, HEIGHT))
+    video_duration = video_clip_painting.duration
 
     while True:
         for event in pygame.event.get():
@@ -121,11 +135,37 @@ def painting_program():
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN:
+        # Calculate the current video frame based on elapsed time
+        elapsed_time = (pygame.time.get_ticks() / 1000) % video_duration
+        video_frame = video_clip_painting.get_frame(elapsed_time)
+        
+        # Convert the video frame to a pygame surface
+        background_surface = pygame.surfarray.make_surface(video_frame.swapaxes(0, 1))
+
+        # Draw the video frame as the background
+        screen.blit(background_surface, (0, 0))
+
+
+
+        # Draw the color palette on the screen
+        draw_color_palette()
+
+        # Draw the drawing surface on the screen
+        screen.blit(draw_surface, (COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10, 10))
+
+        draw_grid()
+        
+        # Draw the back button
+        draw_back_button()
+
+        pygame.display.flip()
+        clock.tick(30)
+
+        if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_s:
                     save_image()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x, y = pygame.mouse.get_pos()
 
@@ -147,11 +187,11 @@ def painting_program():
                         if 50 <= x <= 250 and 20 <= y <= 70:
                             return
 
-            if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     drawing = False
 
-            if event.type == pygame.MOUSEMOTION:
+        if event.type == pygame.MOUSEMOTION:
                 if drawing:
                     x, y = pygame.mouse.get_pos()
                     draw_x = COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10 
@@ -161,25 +201,6 @@ def painting_program():
                     if 0 <= grid_x < len(grid) and 0 <= grid_y < len(grid[0]):
                         grid[grid_x][grid_y] = color
 
-        # Blit the background image onto the screen
-        screen.blit(background_image, (0, 0))
-
-        # Draw the back button
-        back_button_text = font.render("Back To Menu", True, (255, 255, 255))
-        back_button_rect = back_button_text.get_rect(center=(150, 45))
-
-        pygame.draw.rect(screen, (75, 119, 190), (50, 20, 200, 50), 0)
-        screen.blit(back_button_text, back_button_rect)
-
-        # Draw the color palette on the screen
-        draw_color_palette()
-
-        # Draw the drawing surface on the screen
-        screen.blit(draw_surface, (COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10, 10))
-
-        draw_grid()
-
-        pygame.display.flip()
 
 if __name__ == "__main__":
     painting_program()

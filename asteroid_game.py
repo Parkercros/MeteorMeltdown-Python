@@ -1,3 +1,5 @@
+from high_scores import update_high_scores
+
 def asteroid_game():
     # Paste your entire game code here
 
@@ -215,6 +217,8 @@ def asteroid_game():
             hits = pygame.sprite.spritecollide(spaceship, asteroids, False)
             if hits:
                 game_over = True
+                update_high_scores(score)
+
                 spaceship.kill()
                 pygame.mixer.music.stop()
                 game_over_sound.play()
