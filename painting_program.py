@@ -4,7 +4,7 @@ import colorsys
 import os
 from moviepy.editor import VideoFileClip
 
-images_dir = "images"
+images_dir = "assets/spaceships"
 if not os.path.exists(images_dir):
     os.makedirs(images_dir)
     
@@ -107,6 +107,12 @@ def draw_back_button():
 
     pygame.draw.rect(screen, (75, 119, 190), (50, 20, 200, 50), 0)
     screen.blit(back_button_text, back_button_rect)
+    
+def reset_drawing_area():
+    draw_surface.fill(BACKGROUND_COLOR)
+    for x in range(draw_width // GRID_SIZE):
+        for y in range(draw_height // GRID_SIZE):
+            grid[x][y] = BACKGROUND_COLOR
 
 
 def painting_program():
@@ -124,6 +130,15 @@ def painting_program():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_s:
+                    save_image()
+                    reset_drawing_area()
+
+            # (Rest of the code remains the same)
+
+
 
  # Calculate the current video frame based on elapsed time
         elapsed_time = (pygame.time.get_ticks() / 1000) % video_duration

@@ -1,15 +1,13 @@
 from database import HighScore
-
-
+from database import HighScore
+import sys
+import random
+import pygame.font
+import pygame.mixer
+from pygame.locals import *
+import os
 
 def asteroid_game():
-
-
-    import sys
-    import random
-    import pygame.font
-    import pygame.mixer
-
 
 # Initialize Pygame
     pygame.init()
@@ -30,12 +28,10 @@ def asteroid_game():
     background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 
 
-    spaceship_images = [
-        pygame.image.load('assets/spaceships/spaceship.png'),
-        pygame.image.load('assets/spaceships/spaceship2.png'),
-        pygame.image.load('assets/spaceships/spaceship3.png'),
-        pygame.image.load('assets/spaceships/spaceship4.png')
-    ]
+    spaceship_directory = 'assets/spaceships/'
+    fixed_width, fixed_height = 85, 75
+    spaceship_images = [pygame.transform.scale(pygame.image.load(os.path.join(spaceship_directory, img)), (fixed_width, fixed_height)) for img in os.listdir(spaceship_directory) if img.endswith('.png')]
+
 
 
     game_over_font = pygame.font.Font(None, 50)
@@ -80,7 +76,7 @@ def asteroid_game():
                 self.rect.right = WIDTH
                 
     def opening_screen():
-        background_img = pygame.image.load('background2.png')
+        background_img = pygame.image.load('assets/background2.png')  # Replace with the correct path
         background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
         font_title = pygame.font.Font(None, 80)
         font_prompt = pygame.font.Font(None, 40)
@@ -102,6 +98,7 @@ def asteroid_game():
                 elif event.type == pygame.KEYUP:
                     waiting = False
 
+
     def character_selector():
         global spaceship_img
         screen.fill((0, 0, 0))
@@ -109,9 +106,12 @@ def asteroid_game():
         prompt_text = font_prompt.render("Select a Character", True, (255, 255, 255))
         screen.blit(prompt_text, (WIDTH // 2 - prompt_text.get_width() // 2, HEIGHT // 2))
 
+        num_keys = [getattr(pygame, f"K_{i}") for i in range(1, 10)] + [getattr(pygame, f"K_KP{i}") for i in range(1, 10)]
+        key_to_index = {key: index for index, key in enumerate(num_keys)}
+
         for i, spaceship_image in enumerate(spaceship_images, 1):
             scaled_image = pygame.transform.scale(spaceship_image, (100, 100))
-            x = WIDTH // 5 * i - scaled_image.get_width() // 2
+            x = WIDTH // (len(spaceship_images) + 1) * i - scaled_image.get_width() // 2
             y = HEIGHT // 2 + 50
             screen.blit(scaled_image, (x, y))
             num_text = score_font.render(str(i), True, (255, 255, 255))
@@ -126,18 +126,12 @@ def asteroid_game():
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.KEYUP:
-                    if event.key in (pygame.K_1, pygame.K_KP1):
-                        spaceship_img = spaceship_images[0]
-                        waiting = False
-                    elif event.key in (pygame.K_2, pygame.K_KP2):
-                        spaceship_img = spaceship_images[1]
-                        waiting = False
-                    elif event.key in (pygame.K_3, pygame.K_KP3):
-                        spaceship_img = spaceship_images[2]
-                        waiting = False
-                    elif event.key in (pygame.K_4, pygame.K_KP4):
-                        spaceship_img = spaceship_images[3]
-                        waiting = False 
+                    if event.key in key_to_index:
+                        index = key_to_index[event.key]
+                        if index < len(spaceship_images):
+                            spaceship_img = spaceship_images[index]
+                            waiting = False
+
     def get_player_name():
         font = pygame.font.Font(None, 36)
         input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 150, 200, 50)

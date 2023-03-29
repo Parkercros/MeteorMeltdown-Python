@@ -18,6 +18,9 @@ pygame.display.set_caption('App Menu')
 
 video_clip = VideoFileClip("assets/rocks.mp4")
 video_clip = video_clip.resize((WIDTH, HEIGHT))
+video_clip_highscore = VideoFileClip("assets/77.mp4")
+video_clip_highscore = video_clip_highscore.resize((WIDTH, HEIGHT))
+
 
 pygame.font.init()
 font = pygame.font.Font(None, 36)
@@ -83,11 +86,18 @@ def main_menu():
 
 def high_scores_menu(scores):
     clock = pygame.time.Clock()
-    font = pygame.font.Font(None, 50)
+    title_font = pygame.font.Font(None, 80)
+    score_font = pygame.font.Font(None, 50)
+    video_duration = video_clip_highscore.duration
+
+    num_scores_to_display = 10
+    screen_margin = 150
+    score_spacing = (HEIGHT - 2 * screen_margin) // num_scores_to_display
+
+    name_x = WIDTH // 2 - 150 + 40  
+    score_x = WIDTH // 2 + 150 + 40  
 
     while True:
-        screen.fill((30, 30, 30))
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -95,21 +105,37 @@ def high_scores_menu(scores):
             elif event.type == pygame.KEYUP:
                 return
 
-        text_surface = font.render("High Scores", True, (255, 255, 255))
-        text_rect = text_surface.get_rect(center=(WIDTH // 2, 50))
-        screen.blit(text_surface, text_rect)
+        elapsed_time = (pygame.time.get_ticks() / 1000) % video_duration
+        video_frame = video_clip_highscore.get_frame(elapsed_time)
+        background_surface = pygame.surfarray.make_surface(video_frame.swapaxes(0, 1))
+        screen.blit(background_surface, (0, 0))
 
-        y = 150
-        for index, score in enumerate(scores):
-            text = f"{index + 1}. {score.player_name}: {score.score}"
-            text_surface = font.render(text, True, (255, 255, 255))
-            text_rect = text_surface.get_rect(center=(WIDTH // 2, y))
-            screen.blit(text_surface, text_rect)
-            y += 50
+        title_surface = title_font.render("High Scores", True, (255, 255, 255))
+        title_rect = title_surface.get_rect(center=(WIDTH // 2, screen_margin // 2))
+        screen.blit(title_surface, title_rect)
+
+        y = screen_margin
+        for index, score in enumerate(scores[:num_scores_to_display]):
+            rank_text = f"{index + 1}."
+            name_text = score.player_name
+            score_text = f"{score.score}"
+
+            rank_surface = score_font.render(rank_text, True, (255, 255, 255))
+            name_surface = score_font.render(name_text, True, (255, 255, 255))
+            score_surface = score_font.render(score_text, True, (255, 255, 255))
+
+            rank_rect = rank_surface.get_rect(midleft=(name_x - 100, y))
+            name_rect = name_surface.get_rect(midleft=(name_x, y))
+            score_rect = score_surface.get_rect(midright=(score_x, y))
+
+            screen.blit(rank_surface, rank_rect)
+            screen.blit(name_surface, name_rect)
+            screen.blit(score_surface, score_rect)
+
+            y += score_spacing
 
         pygame.display.update()
         clock.tick(30)
-
 
 if __name__ == "__main__":
     main_menu()
