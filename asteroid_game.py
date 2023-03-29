@@ -1,4 +1,16 @@
-from high_scores import update_high_scores
+from database import save_score, get_scores
+
+def update_high_scores(score):
+    # Save score
+    player_name = "player1"  # Replace this with the actual player's name or a placeholder name
+    save_score(player_name, score)
+
+    # Retrieve scores
+    scores = get_scores()
+    print("High Scores:")
+    for name, score in scores.items():
+        print(f"{name}: {score}")
+
 
 def asteroid_game():
     # Paste your entire game code here
@@ -209,7 +221,7 @@ def asteroid_game():
             all_sprites.add(asteroid)
             asteroids.add(asteroid)
 
-            # Draw background image
+        # Draw background image
         screen.blit(background_img, (0, 0))
 
         # Check for collisions between spaceship and asteroids
@@ -237,4 +249,4 @@ def asteroid_game():
         pygame.time.Clock().tick(60)
 
     pygame.quit()
-    sys.exit()
+    return score  # Return the player's score after the game ends
