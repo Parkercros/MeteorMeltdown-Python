@@ -1,19 +1,8 @@
-from database import save_score, get_scores
+from database import HighScore
 
-def update_high_scores(score):
-    # Save score
-    player_name = "player1"  # Replace this with the actual player's name or a placeholder name
-    save_score(player_name, score)
-
-    # Retrieve scores
-    scores = get_scores()
-    print("High Scores:")
-    for name, score in scores.items():
-        print(f"{name}: {score}")
 
 
 def asteroid_game():
-    # Paste your entire game code here
 
 
     import sys
@@ -22,16 +11,16 @@ def asteroid_game():
     import pygame.mixer
 
 
-    # Initialize Pygame
+# Initialize Pygame
     pygame.init()
     pygame.mixer.init()
 
-    # display
+# display
     WIDTH, HEIGHT = 1600, 1000
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("asteroids")
 
-    # Load assets
+# Load assets
 
     asteroid_img = pygame.image.load('assets/asteroid.png').convert_alpha()
     game_over_img = pygame.image.load('assets/game_over.png')
@@ -57,7 +46,7 @@ def asteroid_game():
     game_over_sound = pygame.mixer.Sound('assets/gameover.mp3')
 
 
-    # Score and level system
+# Score and level system
     score = 0
     level = 1
     score_font = pygame.font.Font(None, 36)
@@ -70,7 +59,7 @@ def asteroid_game():
     def update_asteroid_speed(level):
         return random.randint(2, 6) * level
 
-    # Spaceship
+# Spaceship
     class Spaceship(pygame.sprite.Sprite):
         def __init__(self):
             super().__init__()
@@ -148,8 +137,50 @@ def asteroid_game():
                         waiting = False
                     elif event.key in (pygame.K_4, pygame.K_KP4):
                         spaceship_img = spaceship_images[3]
-                        waiting = False
+                        waiting = False 
+    def get_player_name():
+        font = pygame.font.Font(None, 36)
+        input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 150, 200, 50)
+        color_inactive = pygame.Color('lightskyblue3')
+        color_active = pygame.Color('dodgerblue2')
+        color = color_inactive
+        active = False
+        text = ''
+        done = False
 
+        while not done:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if input_box.collidepoint(event.pos):
+                        active = not active
+                    else:
+                        active = False
+                    color = color_active if active else color_inactive
+                if event.type == pygame.KEYDOWN:
+                    if active:
+                        if event.key == pygame.K_RETURN:
+                            done = True
+                        elif event.key == pygame.K_BACKSPACE:
+                            text = text[:-1]
+                        else:
+                            text += event.unicode
+
+            screen.fill((0, 0, 0))
+            screen.blit(game_over_img, (WIDTH // 2 - game_over_img.get_width() // 2, HEIGHT // 2 - game_over_img.get_height() // 2))
+            screen.blit(final_score_text, (WIDTH // 2 - final_score_text.get_width() // 2, HEIGHT // 2 + 100))
+
+            txt_surface = font.render(text, True, color)
+            input_box.w = max(200, txt_surface.get_width() + 10)
+            screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+            pygame.draw.rect(screen, color, input_box, 2)
+
+            pygame.display.flip()
+            pygame.time.Clock().tick(30)
+
+        return text
         
     class Projectile(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -180,7 +211,7 @@ def asteroid_game():
                 self.rect.y = random.randint(-100, -40)
                 self.speed = update_asteroid_speed(level)
 
-    # game objects
+# game objects
     all_sprites = pygame.sprite.Group()
     character_selector()
     spaceship = Spaceship()
@@ -193,8 +224,7 @@ def asteroid_game():
         all_sprites.add(asteroid)
         asteroids.add(asteroid)
 
-
-    # Game loop
+# Game loop
     running = True
     game_over = False
     while running:
@@ -210,7 +240,7 @@ def asteroid_game():
 
         all_sprites.update()
 
-        # Check for collisions
+# Check for collisions
         collisions = pygame.sprite.groupcollide(projectiles, asteroids, True, True)
         for collision in collisions:
             score += 1
@@ -221,15 +251,14 @@ def asteroid_game():
             all_sprites.add(asteroid)
             asteroids.add(asteroid)
 
-        # Draw background image
+# Draw background image
         screen.blit(background_img, (0, 0))
 
-        # Check for collisions between spaceship and asteroids
+# Check for collisions between spaceship and asteroids
         if not game_over:
             hits = pygame.sprite.spritecollide(spaceship, asteroids, False)
             if hits:
                 game_over = True
-                update_high_scores(score)
 
                 spaceship.kill()
                 pygame.mixer.music.stop()
@@ -239,6 +268,12 @@ def asteroid_game():
             screen.blit(game_over_img, (WIDTH // 2 - game_over_img.get_width() // 2, HEIGHT // 2 - game_over_img.get_height() // 2))
             final_score_text = game_over_font.render(f"Your Score: {score}", True, (255, 255, 255))
             screen.blit(final_score_text, (WIDTH // 2 - final_score_text.get_width() // 2, HEIGHT // 2 + 100))
+            player_name = get_player_name()
+            high_score = HighScore.create(player_name, score)
+            top_scores = HighScore.get_top_scores()
+            print("Top 10 High Scores:")
+            for idx, high_score in enumerate(top_scores, start=1):
+                print(f"{idx}. {high_score.player_name}: {high_score.score}")
 
         else:
             all_sprites.draw(screen)
@@ -249,4 +284,4 @@ def asteroid_game():
         pygame.time.Clock().tick(60)
 
     pygame.quit()
-    return score  # Return the player's score after the game ends
+    return score 

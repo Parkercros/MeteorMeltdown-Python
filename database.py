@@ -1,32 +1,103 @@
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import declarative_base, sessionmaker
+import sqlite3
 
-Base = declarative_base()
+CONN = sqlite3.connect('high_scores.db')
+CURSOR = CONN.cursor()
 
-class HighScore(Base):
-    __tablename__ = 'high_scores'
-    id = Column(Integer, primary_key=True)
-    player_name = Column(String, nullable=False)
-    score = Column(Integer, nullable=False)
+class HighScore:
 
-def init_db():
-    engine = create_engine('sqlite:///high_scores.db')
-    Base.metadata.create_all(engine)
-    return engine
+    def __init__(self, player_name, score, id=None):
+        self.id = id
+        self.player_name = player_name
+        self.score = score
 
-def get_session(engine):
-    return sessionmaker(bind=engine)()
+    @classmethod
+    def create_table(cls):
+        sql = """
+            CREATE TABLE IF NOT EXISTS high_scores
+                (id INTEGER PRIMARY KEY,
+                player_name TEXT,
+                score INTEGER)
+        """
 
-engine = init_db()
+        CURSOR.execute(sql)
 
-def save_score(player_name, score):
-    session = get_session(engine)
-    high_score = HighScore(player_name=player_name, score=score)
-    session.add(high_score)
-    session.commit()
+    @classmethod
+    def drop_table(cls):
+        sql = """
+            DROP TABLE IF EXISTS high_scores
+        """
 
-def get_scores():
-    session = get_session(engine)
-    scores = session.query(HighScore).order_by(HighScore.score.desc()).limit(10).all()
-    return {score.player_name: score.score for score in scores}
+        CURSOR.execute(sql)
+
+    def save(self):
+        sql = """
+            INSERT INTO high_scores (player_name, score)
+            VALUES (?, ?)
+        """
+
+        CURSOR.execute(sql, (self.player_name, self.score))
+        self.id = CURSOR.lastrowid
+        CONN.commit()
+        
+    @classmethod
+    def create(cls, player_name, score):
+        high_score = cls(player_name, score)
+        high_score.save()
+        return high_score
+
+    @classmethod
+    def new_from_db(cls, row):
+        high_score = cls(
+            player_name=row[1],
+            score=row[2],
+            id=row[0]
+        )
+
+        return high_score
+
+    @classmethod
+    def get_top_scores(cls, limit=10):
+        sql = """
+            SELECT * FROM high_scores
+            ORDER BY score DESC
+            LIMIT ?
+        """
+
+        return [cls.new_from_db(row) for row in CURSOR.execute(sql, (limit,)).fetchall()]
+
+    @classmethod
+    def find_by_id(cls, id):
+        sql = """
+            SELECT * FROM high_scores
+            WHERE id = ?
+            LIMIT 1
+        """
+
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        if not row:
+            return None
+
+        return HighScore(
+            player_name=row[1],
+            score=row[2],
+            id=row[0]
+        )
+
+    def update(self):
+        sql = """
+            UPDATE high_scores
+            SET player_name = ?,
+                score = ?
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.player_name, self.score, self.id))
+
+    @classmethod
+    def delete(cls, id):
+        sql = """
+            DELETE FROM high_scores
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (id,))
