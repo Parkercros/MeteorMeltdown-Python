@@ -35,7 +35,7 @@ def asteroid_game():
 
 
     game_over_font = pygame.font.Font(None, 50)
-    background_music = 'assets/music.mp3'
+    background_music = 'assets/music2.mp3'
     pygame.mixer.music.load(background_music)
     pygame.mixer.music.play(-1)
     projectile_img = pygame.image.load('assets/projectile.png')
@@ -105,17 +105,15 @@ def asteroid_game():
         font_prompt = pygame.font.Font(None, 40)
         prompt_text = font_prompt.render("Select a Character", True, (255, 255, 255))
         screen.blit(prompt_text, (WIDTH // 2 - prompt_text.get_width() // 2, HEIGHT // 2))
-
-        num_keys = [getattr(pygame, f"K_{i}") for i in range(1, 10)] + [getattr(pygame, f"K_KP{i}") for i in range(1, 10)]
-        key_to_index = {key: index for index, key in enumerate(num_keys)}
+        spaceship_positions = []
 
         for i, spaceship_image in enumerate(spaceship_images, 1):
             scaled_image = pygame.transform.scale(spaceship_image, (100, 100))
             x = WIDTH // (len(spaceship_images) + 1) * i - scaled_image.get_width() // 2
             y = HEIGHT // 2 + 50
             screen.blit(scaled_image, (x, y))
-            num_text = score_font.render(str(i), True, (255, 255, 255))
-            screen.blit(num_text, (x + scaled_image.get_width() // 2 - num_text.get_width() // 2, y + 110))
+
+            spaceship_positions.append((scaled_image, x, y))
 
         pygame.display.flip()
 
@@ -125,12 +123,14 @@ def asteroid_game():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.KEYUP:
-                    if event.key in key_to_index:
-                        index = key_to_index[event.key]
-                        if index < len(spaceship_images):
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    mouse_pos = pygame.mouse.get_pos()
+                    for index, (image, x, y) in enumerate(spaceship_positions):
+                        rect = pygame.Rect(x, y, image.get_width(), image.get_height())
+                        if rect.collidepoint(mouse_pos):
                             spaceship_img = spaceship_images[index]
                             waiting = False
+
 
     def get_player_name():
         font = pygame.font.Font(None, 36)
@@ -141,7 +141,6 @@ def asteroid_game():
         active = False
         text = ''
         done = False
-
         while not done:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

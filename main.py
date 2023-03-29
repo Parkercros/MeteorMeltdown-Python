@@ -8,7 +8,7 @@ from database import HighScore
 
 pygame.init()
 pygame.mixer.init()
-pygame.mixer.music.load("assets/music.mp3")
+pygame.mixer.music.load("assets/music2.mp3")
 pygame.mixer.music.play(-1)
 
 WIDTH, HEIGHT = 1600, 1000
