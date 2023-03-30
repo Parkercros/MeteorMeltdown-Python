@@ -7,7 +7,6 @@ CURSOR = CONN.cursor()
 conn = sqlite3.connect('player.db')
 c = conn.cursor()
 
-# Create the Player table
 c.execute('''
 CREATE TABLE IF NOT EXISTS player (
     id INTEGER PRIMARY KEY,
