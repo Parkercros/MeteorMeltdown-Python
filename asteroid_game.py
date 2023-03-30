@@ -6,6 +6,9 @@ import pygame.font
 import pygame.mixer
 from pygame.locals import *
 import os
+import pygame.surfarray
+from database import HighScore
+
 
 def asteroid_game():
 

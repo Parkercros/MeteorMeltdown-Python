@@ -6,6 +6,8 @@ from moviepy.editor import VideoFileClip
 from asteroid_game import asteroid_game
 from database import HighScore
 
+
+
 pygame.init()
 pygame.mixer.init()
 pygame.mixer.music.load("assets/music2.mp3")
@@ -20,7 +22,6 @@ video_clip = VideoFileClip("assets/rocks.mp4")
 video_clip = video_clip.resize((WIDTH, HEIGHT))
 video_clip_highscore = VideoFileClip("assets/77.mp4")
 video_clip_highscore = video_clip_highscore.resize((WIDTH, HEIGHT))
-
 
 pygame.font.init()
 font = pygame.font.Font(None, 36)
@@ -40,7 +41,6 @@ def draw_button(text, x, y, width, height, active_color, inactive_color):
     text_surface = font.render(text, True, (255, 255, 255))
     text_rect = text_surface.get_rect(center=(x + width / 2, y + height / 2))
     screen.blit(text_surface, text_rect)
-
 
 def main_menu():
     clock = pygame.time.Clock()
@@ -68,11 +68,7 @@ def main_menu():
         inactive_color = (200, 200, 200)
 
         if draw_button("Start Game", button_x_start, 500, button_width, button_height, active_color, inactive_color):
-            player_score = asteroid_game()
-            player_name = input("Enter your name: ")
-            if player_name:
-                HighScore.create(player_name, player_score)
-            scores = HighScore.get_top_scores()
+            asteroid_game()
 
         if draw_button("Create Character", button_x_start + button_width + button_spacing, 500, button_width, button_height, active_color, inactive_color):
             painting_program()
@@ -110,7 +106,7 @@ def high_scores_menu(scores):
         background_surface = pygame.surfarray.make_surface(video_frame.swapaxes(0, 1))
         screen.blit(background_surface, (0, 0))
 
-        title_surface = title_font.render("High Scores", True, (255, 255, 255))
+        title_surface = title_font.render("Top Scores", True, (255, 255, 255))
         title_rect = title_surface.get_rect(center=(WIDTH // 2, screen_margin // 2))
         screen.blit(title_surface, title_rect)
 

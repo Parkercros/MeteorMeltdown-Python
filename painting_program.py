@@ -3,12 +3,14 @@ import sys
 import colorsys
 import os
 from moviepy.editor import VideoFileClip
+from art import insert_image_date
+import datetime
+
 
 images_dir = "assets/spaceships"
 if not os.path.exists(images_dir):
     os.makedirs(images_dir)
     
-
 WIDTH, HEIGHT = 1600, 1000
 GRID_SIZE = 16
 BACKGROUND_COLOR = (245, 245, 245)
@@ -48,15 +50,11 @@ for i in range(256):
 def draw_grid():
     draw_surface.fill(BACKGROUND_COLOR)
 
-
     for x, col in enumerate(grid):
         for y, color in enumerate(col):
             pygame.draw.rect(draw_surface, color, (x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE))
 
-
-
 def draw_color_palette():
-
 
     for i, color in enumerate(color_palette):
         x = i % COLOR_PALETTE_GRID_SIZE
@@ -94,9 +92,17 @@ def save_image():
             if color != BACKGROUND_COLOR:
                 pygame.draw.rect(surface, color, ((x * GRID_SIZE) - min_x, (y * GRID_SIZE) - min_y, GRID_SIZE, GRID_SIZE), 0)
 
+    # Save the image to a file
     filename = f"image_{len(os.listdir(images_dir))}.png"
     filepath = os.path.join(images_dir, filename)
     pygame.image.save(surface, filepath)
+
+    # Add new row to database
+    date_saved = datetime.date.today()
+    insert_image_date(date_saved, filepath)
+
+    return filepath
+
     
 video_clip_painting = VideoFileClip("assets/rocks.mp4")
 video_clip_painting = video_clip_painting.resize((WIDTH, HEIGHT))
@@ -114,7 +120,6 @@ def reset_drawing_area():
         for y in range(draw_height // GRID_SIZE):
             grid[x][y] = BACKGROUND_COLOR
 
-
 def painting_program():
     drawing = False
     color = (160, 160, 160)
@@ -124,6 +129,7 @@ def painting_program():
     video_clip_painting = VideoFileClip("assets/rocks.mp4")
     video_clip_painting = video_clip_painting.resize((WIDTH, HEIGHT))
     video_duration = video_clip_painting.duration
+    saved_image_path = None
 
     while True:
         for event in pygame.event.get():
@@ -133,11 +139,9 @@ def painting_program():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_s:
-                    save_image()
+                    saved_image_path = save_image()
                     reset_drawing_area()
-
-            # (Rest of the code remains the same)
-
+                    return saved_image_path
 
 
  # Calculate the current video frame based on elapsed time
@@ -164,15 +168,10 @@ def painting_program():
         pygame.display.flip()
         clock.tick(30)
 
-        if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_s:
-                    save_image()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x, y = pygame.mouse.get_pos()
-
-
                     draw_x = COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10
                     draw_y = 10
                     if draw_x <= x <= draw_x + draw_width and draw_y <= y <= draw_y + draw_height:
@@ -205,4 +204,7 @@ def painting_program():
 
 
 if __name__ == "__main__":
-    painting_program()
+    saved_image_path = painting_program()
+    if saved_image_path:
+        date_saved = datetime.date.today()
+        insert_image_date(date_saved, saved_image_path)

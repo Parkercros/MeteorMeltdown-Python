@@ -3,6 +3,37 @@ import sqlite3
 CONN = sqlite3.connect('high_scores.db')
 CURSOR = CONN.cursor()
 
+
+conn = sqlite3.connect('player.db')
+c = conn.cursor()
+
+# Create the Player table
+c.execute('''
+CREATE TABLE IF NOT EXISTS player (
+    id INTEGER PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+''')
+
+conn.commit()
+
+class Player:
+    @staticmethod
+    def create(name):
+        try:
+            c.execute("INSERT INTO player (name) VALUES (?)", (name,))
+            conn.commit()
+        except sqlite3.IntegrityError:
+            # Player with the same name already exists
+            pass
+
+    @staticmethod
+    def get_all():
+        c.execute("SELECT * FROM player")
+        return c.fetchall()
+
+
 class HighScore:
 
     def __init__(self, player_name, score, id=None):
