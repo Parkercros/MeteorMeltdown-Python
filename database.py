@@ -26,12 +26,11 @@ class Player:
         except sqlite3.IntegrityError:
             # Player with the same name already exists
             pass
-
+            
     @staticmethod
     def get_all():
         c.execute("SELECT * FROM player")
         return c.fetchall()
-
 
 class HighScore:
 

@@ -1,12 +1,9 @@
 import pygame
 import sys
-from asteroid_game import asteroid_game
 from painting_program import painting_program
 from moviepy.editor import VideoFileClip
 from asteroid_game import asteroid_game
 from database import HighScore
-
-
 
 pygame.init()
 pygame.mixer.init()
@@ -28,15 +25,19 @@ font = pygame.font.Font(None, 36)
 
 def draw_button(text, x, y, width, height, active_color, inactive_color):
     mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
+    mouse_click = pygame.mouse.get_pressed()
 
     if x < mouse[0] < x + width and y < mouse[1] < y + height:
         pygame.draw.rect(screen, active_color, (x, y, width, height))
 
-        if click[0] == 1:
+        if mouse_click[0] == 1:
             return True
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height))
+
+    text_surface = font.render(text, True, (255, 255, 255))
+    text_rect = text_surface.get_rect(center=(x + width / 2, y + height / 2))
+    screen.blit(text_surface, text_rect)
 
     text_surface = font.render(text, True, (255, 255, 255))
     text_rect = text_surface.get_rect(center=(x + width / 2, y + height / 2))

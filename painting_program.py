@@ -56,11 +56,17 @@ def draw_grid():
             pygame.draw.rect(draw_surface, color, (x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE))
 
 def draw_color_palette():
-
     for i, color in enumerate(color_palette):
         x = i % COLOR_PALETTE_GRID_SIZE
         y = i // COLOR_PALETTE_GRID_SIZE
         pygame.draw.rect(screen, color, (COLOR_PALETTE_POS[0] + x * (COLOR_PALETTE_SIZE + 1), COLOR_PALETTE_POS[1] + y * (COLOR_PALETTE_SIZE + 1), COLOR_PALETTE_SIZE, COLOR_PALETTE_SIZE), 0)
+        
+    eraser_text = font.render("Eraser", True, (255, 255, 255))
+    eraser_text_rect = eraser_text.get_rect(center=(COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 60, COLOR_PALETTE_POS[1] - 20))
+
+    pygame.draw.rect(screen, (255, 255, 255), (COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10, COLOR_PALETTE_POS[1] - 30, 120, 30), 0)
+    screen.blit(eraser_text, eraser_text_rect)
+
 
 def draw_spaceship():
     save_image()
@@ -108,8 +114,6 @@ def save_image():
     return filepath
 
     
-video_clip_painting = VideoFileClip("assets/rocks.mp4")
-video_clip_painting = video_clip_painting.resize((WIDTH, HEIGHT))
 
 def draw_back_button():
     back_button_text = font.render("Back To Menu", True, (255, 255, 255))
@@ -174,27 +178,26 @@ def painting_program():
 
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    x, y = pygame.mouse.get_pos()
-                    draw_x = COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10
-                    draw_y = 10
-                    if draw_x <= x <= draw_x + draw_width and draw_y <= y <= draw_y + draw_height:
-                        drawing = True
-                    else:
-
-                        if (COLOR_PALETTE_POS[1] <= y <= COLOR_PALETTE_POS[1] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1)) and (COLOR_PALETTE_POS[0] <= x <= COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1)):
-                            palette_x = (x - COLOR_PALETTE_POS[0]) // (COLOR_PALETTE_SIZE + 1)
-                            palette_y = (y - COLOR_PALETTE_POS[1]) // (COLOR_PALETTE_SIZE + 1)
-                            i = palette_y * COLOR_PALETTE_GRID_SIZE + palette_x
-                            if 0 <= i < len(color_palette):
-                                color = color_palette[i]
-
-                        if 50 <= x <= 250 and 20 <= y <= 70:
-                            return
+            if event.button == 1:
+                x, y = pygame.mouse.get_pos()
+                draw_x = COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10
+                draw_y = 10
+                if draw_x <= x <= draw_x + draw_width and draw_y <= y <= draw_y + draw_height:
+                    drawing = True
+                elif COLOR_PALETTE_POS[1] <= y <= COLOR_PALETTE_POS[1] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) and COLOR_PALETTE_POS[0] <= x <= COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1):
+                    palette_x = (x - COLOR_PALETTE_POS[0]) // (COLOR_PALETTE_SIZE + 1)
+                    palette_y = (y - COLOR_PALETTE_POS[1]) // (COLOR_PALETTE_SIZE + 1)
+                    i = palette_y * COLOR_PALETTE_GRID_SIZE + palette_x
+                    if 0 <= i < len(color_palette):
+                        color = color_palette[i]
+                elif 50 <= x <= 250 and 20 <= y <= 70:
+                    return
 
         if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
-                    drawing = False
+            if event.button == 1:
+                drawing = False
+
+
 
         if event.type == pygame.MOUSEMOTION:
                 if drawing:

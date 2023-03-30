@@ -7,7 +7,7 @@ import pygame.mixer
 from pygame.locals import *
 import os
 import pygame.surfarray
-from database import HighScore
+from database import HighScore, Player
 
 
 def asteroid_game():
@@ -101,6 +101,21 @@ def asteroid_game():
                 elif event.type == pygame.KEYUP:
                     waiting = False
 
+    def draw_back_button():
+        back_button_width = 150
+        back_button_height = 50
+        back_button_x = WIDTH // 2 - back_button_width // 2
+        back_button_y = HEIGHT - 100
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        
+        if back_button_x < mouse[0] < back_button_x + back_button_width and back_button_y < mouse[1] < back_button_y + back_button_height:
+            pygame.draw.rect(screen, (255, 255, 255), (back_button_x, back_button_y, back_button_width, back_button_height))
+            if click[0] == 1:
+                main_menu()
+        else:
+            pygame.draw.rect(screen, (200, 200, 200), (back_button_x, back_button_y, back_button_width, back_button_height))
+        
 
     def character_selector():
         global spaceship_img
@@ -175,7 +190,7 @@ def asteroid_game():
 
             pygame.display.flip()
             pygame.time.Clock().tick(30)
-
+            
         return text
         
     class Projectile(pygame.sprite.Sprite):
@@ -265,6 +280,7 @@ def asteroid_game():
             final_score_text = game_over_font.render(f"Your Score: {score}", True, (255, 255, 255))
             screen.blit(final_score_text, (WIDTH // 2 - final_score_text.get_width() // 2, HEIGHT // 2 + 100))
             player_name = get_player_name()
+            Player.create(player_name) 
             high_score = HighScore.create(player_name, score)
             top_scores = HighScore.get_top_scores()
             print("Top 10 High Scores:")
