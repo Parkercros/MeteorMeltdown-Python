@@ -3,7 +3,8 @@ import sys
 import colorsys
 import os
 from moviepy.editor import VideoFileClip
-from art import insert_image_date
+from art import insert_image_date, get_image_size
+
 import datetime
 
 
@@ -97,9 +98,12 @@ def save_image():
     filepath = os.path.join(images_dir, filename)
     pygame.image.save(surface, filepath)
 
+    # Get the dimensions of the saved image
+    width, height = surface.get_size()
+
     # Add new row to database
     date_saved = datetime.date.today()
-    insert_image_date(date_saved, filepath)
+    insert_image_date(date_saved, filepath, width, height)
 
     return filepath
 
