@@ -6,10 +6,12 @@ from PIL import Image
 def create_image_dates_table():
     conn = sqlite3.connect("created-spaceships.db")
     conn.execute('''CREATE TABLE IF NOT EXISTS image_dates
-                    (filepath TEXT PRIMARY KEY NOT NULL,
+                    (id INTEGER PRIMARY KEY,
+                    filepath TEXT NOT NULL,
                     date_saved DATE NOT NULL,
                     width INTEGER NOT NULL,
-                    height INTEGER NOT NULL);''')
+                    height INTEGER NOT NULL,
+                    UNIQUE(filepath));''')
     conn.commit()
     conn.close()
 
@@ -17,7 +19,7 @@ create_image_dates_table()
 
 def insert_image_date(date_saved, filepath, width, height):
     conn = sqlite3.connect('created-spaceships.db')
-    conn.execute('INSERT INTO image_dates (filepath, date_saved, width, height) VALUES (?, ?, ?, ?)',
+    conn.execute('INSERT OR REPLACE INTO image_dates (filepath, date_saved, width, height) VALUES (?, ?, ?, ?)',
                 (filepath, date_saved, width, height))
     conn.commit()
     conn.close()

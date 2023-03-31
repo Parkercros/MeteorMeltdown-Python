@@ -13,7 +13,7 @@ if not os.path.exists(images_dir):
     os.makedirs(images_dir)
     
 WIDTH, HEIGHT = 1600, 1000
-GRID_SIZE = 16
+GRID_SIZE = 10
 BACKGROUND_COLOR = (245, 245, 245)
 COLOR_PALETTE_POS = (10, HEIGHT - 295)
 COLOR_PALETTE_SIZE = 15
@@ -56,17 +56,11 @@ def draw_grid():
             pygame.draw.rect(draw_surface, color, (x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE))
 
 def draw_color_palette():
+
     for i, color in enumerate(color_palette):
         x = i % COLOR_PALETTE_GRID_SIZE
         y = i // COLOR_PALETTE_GRID_SIZE
         pygame.draw.rect(screen, color, (COLOR_PALETTE_POS[0] + x * (COLOR_PALETTE_SIZE + 1), COLOR_PALETTE_POS[1] + y * (COLOR_PALETTE_SIZE + 1), COLOR_PALETTE_SIZE, COLOR_PALETTE_SIZE), 0)
-        
-    eraser_text = font.render("Eraser", True, (255, 255, 255))
-    eraser_text_rect = eraser_text.get_rect(center=(COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 60, COLOR_PALETTE_POS[1] - 20))
-
-    pygame.draw.rect(screen, (255, 255, 255), (COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10, COLOR_PALETTE_POS[1] - 30, 120, 30), 0)
-    screen.blit(eraser_text, eraser_text_rect)
-
 
 def draw_spaceship():
     save_image()
@@ -114,6 +108,8 @@ def save_image():
     return filepath
 
     
+video_clip_painting = VideoFileClip("assets/rocks.mp4")
+video_clip_painting = video_clip_painting.resize((WIDTH, HEIGHT))
 
 def draw_back_button():
     back_button_text = font.render("Back To Menu", True, (255, 255, 255))
@@ -151,6 +147,36 @@ def painting_program():
                     reset_drawing_area()
                     return saved_image_path
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        drawing = True
+
+                if event.button == 1:
+                    x, y = event.pos
+                    if COLOR_PALETTE_POS[0] <= x <= COLOR_PALETTE_POS[0] + (COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1)) and COLOR_PALETTE_POS[1] <= y <= COLOR_PALETTE_POS[1] + (COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1)):
+                        palette_x = (x - COLOR_PALETTE_POS[0]) // (COLOR_PALETTE_SIZE + 1)
+                        palette_y = (y - COLOR_PALETTE_POS[1]) // (COLOR_PALETTE_SIZE + 1)
+                        color_index = palette_y * COLOR_PALETTE_GRID_SIZE + palette_x
+                        if 0 <= color_index < len(color_palette):
+                            color = color_palette[color_index]
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    drawing = False
+            if event.type == pygame.MOUSEMOTION:
+                if drawing:
+                    x, y = event.pos
+                    x -= COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10
+                    y -= 10
+
+                    if 0 <= x < draw_width and 0 <= y < draw_height:
+                        pygame.draw.circle(draw_surface, color, (x, y), brush_size)
+                        grid_x = x // GRID_SIZE
+                        grid_y = y // GRID_SIZE
+                        for i in range(max(0, grid_x - brush_size), min(draw_width // GRID_SIZE, grid_x + brush_size + 1)):
+                            for j in range(max(0, grid_y - brush_size), min(draw_height // GRID_SIZE, grid_y + brush_size + 1)):
+                                grid[i][j] = color
 
  # Calculate the current video frame based on elapsed time
         elapsed_time = (pygame.time.get_ticks() / 1000) % video_duration
@@ -176,38 +202,6 @@ def painting_program():
         pygame.display.flip()
         clock.tick(30)
 
-
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                x, y = pygame.mouse.get_pos()
-                draw_x = COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10
-                draw_y = 10
-                if draw_x <= x <= draw_x + draw_width and draw_y <= y <= draw_y + draw_height:
-                    drawing = True
-                elif COLOR_PALETTE_POS[1] <= y <= COLOR_PALETTE_POS[1] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) and COLOR_PALETTE_POS[0] <= x <= COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1):
-                    palette_x = (x - COLOR_PALETTE_POS[0]) // (COLOR_PALETTE_SIZE + 1)
-                    palette_y = (y - COLOR_PALETTE_POS[1]) // (COLOR_PALETTE_SIZE + 1)
-                    i = palette_y * COLOR_PALETTE_GRID_SIZE + palette_x
-                    if 0 <= i < len(color_palette):
-                        color = color_palette[i]
-                elif 50 <= x <= 250 and 20 <= y <= 70:
-                    return
-
-        if event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1:
-                drawing = False
-
-
-
-        if event.type == pygame.MOUSEMOTION:
-                if drawing:
-                    x, y = pygame.mouse.get_pos()
-                    draw_x = COLOR_PALETTE_POS[0] + COLOR_PALETTE_GRID_SIZE * (COLOR_PALETTE_SIZE + 1) + 10 
-                    draw_y = 10
-                    grid_x = (x - draw_x) // GRID_SIZE
-                    grid_y = (y - draw_y) // GRID_SIZE
-                    if 0 <= grid_x < len(grid) and 0 <= grid_y < len(grid[0]):
-                        grid[grid_x][grid_y] = color
 
 
 if __name__ == "__main__":

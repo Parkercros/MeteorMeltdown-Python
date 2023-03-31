@@ -1,0 +1,17 @@
+Meteor Meltdown
+
+Getting Started
+To run this program, you'll need to have Python 3 installed, as well as the Pygame and moviepy libraries. 
+You can install Pygame and moviepy by running the following command in your terminal:
+
+pip install pygame moviepy
+python3 -m pip install -U pygame --user
+
+How to Use
+
+When you run the program (by putting 'python main.py' in the terminal), you'll see the main menu screen. You can click on the "Start Game" button to play the asteroid game, the "Create Character" button to create your own Spaceship to play as(to save your caracter press the 'S' Key), or the "High Scores" button to view the top scores. If you select "High Scores", you'll be taken to a screen displaying the top scores, and you can press any key to return to the main menu.f
+
+You navigate the actual game by using your left and right arrow keys, you shoot by hitting the spacebar.
+
+thew goal of the game is to dodge and destroy as many of the meteors as you can before you get hit.
+

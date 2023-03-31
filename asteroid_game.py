@@ -149,7 +149,6 @@ def asteroid_game():
                             spaceship_img = spaceship_images[index]
                             waiting = False
 
-
     def get_player_name():
         font = pygame.font.Font(None, 36)
         input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 150, 200, 50)
