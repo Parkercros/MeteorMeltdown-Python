@@ -4,7 +4,6 @@ import colorsys
 import os
 from moviepy.editor import VideoFileClip
 from art import insert_image_date, get_image_size
-
 import datetime
 
 
@@ -148,6 +147,15 @@ def painting_program():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         drawing = True
+            
+                    x, y = event.pos  # Add this line to define x and y before checking for back button click
+
+                        # Check if the back button is clicked
+                back_button_x, back_button_y, back_button_width, back_button_height = 50, 20, 200, 50
+                if back_button_x <= x <= back_button_x + back_button_width and back_button_y <= y <= back_button_y + back_button_height:
+                    return
+                            
+                        
 
                 if event.button == 1:
                     x, y = event.pos

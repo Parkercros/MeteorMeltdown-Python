@@ -6,8 +6,6 @@ from moviepy.editor import VideoFileClip
 from asteroid_game import asteroid_game
 from database import HighScore
 
-
-
 pygame.init()
 
 pygame.mixer.music.load("assets/music2.mp3")
