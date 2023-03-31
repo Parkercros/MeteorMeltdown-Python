@@ -93,15 +93,12 @@ def save_image():
             if color != BACKGROUND_COLOR:
                 pygame.draw.rect(surface, color, ((x * GRID_SIZE) - min_x, (y * GRID_SIZE) - min_y, GRID_SIZE, GRID_SIZE), 0)
 
-    # Save the image to a file
     filename = f"image_{len(os.listdir(images_dir))}.png"
     filepath = os.path.join(images_dir, filename)
     pygame.image.save(surface, filepath)
 
-    # Get the dimensions of the saved image
     width, height = surface.get_size()
 
-    # Add new row to database
     date_saved = datetime.date.today()
     insert_image_date(date_saved, filepath, width, height)
 
